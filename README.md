@@ -1,6 +1,12 @@
+---
+title: SchemaSage
+sdk: docker
+app_port: 8000
+---
+
 # SchemaSage
 
-[![Hugging Face Space](https://img.shields.io/badge/Hugging%20Face%20Space-pending-yellow)](https://huggingface.co/spaces/animeshdutta888/schema-sage)
+[![Hugging Face Space](https://img.shields.io/badge/Hugging%20Face%20Space-live-green)](https://huggingface.co/spaces/animesh08/schema-sage)
 
 SchemaSage is a schema-aware Text2SQL demo service. It turns natural-language analytics questions into SQLite `SELECT` queries, validates the generated SQL, and executes it through a read-only database connection.
 
