@@ -1,5 +1,7 @@
 # SchemaSage
 
+[![Hugging Face Space](https://img.shields.io/badge/Hugging%20Face%20Space-pending-yellow)](https://huggingface.co/spaces/animeshdutta888/schema-sage)
+
 SchemaSage is a schema-aware Text2SQL demo service. It turns natural-language analytics questions into SQLite `SELECT` queries, validates the generated SQL, and executes it through a read-only database connection.
 
 The default backend is deterministic and requires no model downloads, so the API and demo UI start quickly. Optional Ollama/Qwen and LoRA/PEFT paths are available for local model-backed demos.
@@ -99,6 +101,19 @@ SchemaSage can be deployed anywhere that runs a Python web process.
 
 For production-style exposure, put the app behind HTTPS and an auth layer before connecting it to non-demo data.
 
+### Hugging Face Spaces
+
+Deploy the Docker demo to Spaces:
+
+```bash
+huggingface-cli login
+huggingface-cli repo create schema-sage --type space --space_sdk docker
+git remote add space https://huggingface.co/spaces/animeshdutta888/schema-sage
+git push space main
+```
+
+Space URL: `https://huggingface.co/spaces/animeshdutta888/schema-sage`
+
 ## Optional Model Backends
 
 Use Qwen through Ollama locally:
@@ -129,6 +144,30 @@ LORA_ADAPTER_PATH=artifacts/lora/schemasage-qwen-0.5b-adapter \
 ```
 
 If Ollama, model dependencies, or adapter artifacts are unavailable, SchemaSage falls back to deterministic SQL and reports the fallback in the response `source` and `explanation`.
+
+## Evaluation
+
+Evaluation uses `data/training/demo_text2sql.jsonl` with 51 schema-grounded Text2SQL examples. Exact match compares normalized SQL strings, execution accuracy compares result rows on the demo SQLite database, and valid SQL rate comes from the safety validator.
+
+| Run | Model / Backend | Examples | Exact Match | Execution Accuracy | Valid SQL Rate | Avg Latency |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Baseline, 2026-06-01 | Deterministic rules | 51 | 3.9% | 7.8% | 100.0% | 0.00 ms |
+| Fine-tune, 2026-06-01 | Qwen2.5-Coder-0.5B LoRA, 1 epoch | 51 train examples | Training complete | Adapter saved | Final eval pending | 579.5 s train runtime |
+
+Reproduce:
+
+```bash
+python3 scripts/evaluate_text2sql.py --backend rules --output-file artifacts/eval/rules.json
+python3 scripts/train_lora.py \
+  --base-model Qwen/Qwen2.5-Coder-0.5B-Instruct \
+  --train-file data/training/demo_text2sql.jsonl \
+  --output-dir artifacts/lora/schemasage-qwen-0.5b-adapter \
+  --epochs 1 \
+  --max-seq-length 512
+SCHEMASAGE_GENERATOR_BACKEND=lora \
+LORA_ADAPTER_PATH=artifacts/lora/schemasage-qwen-0.5b-adapter \
+  python3 scripts/evaluate_text2sql.py --backend lora --output-file artifacts/eval/lora.json --mlflow
+```
 
 ## Safety Model
 
@@ -164,4 +203,4 @@ If a real secret has ever been committed, rotate it immediately and remove it fr
 
 ## Status
 
-This is a compact foundation implementation for demos and evaluation. Spider/BIRD preprocessing, MLflow tracking, auth, rate limiting, and larger benchmark runs are intentionally left as future production phases rather than placeholder scaffolding.
+SchemaSage now has a runnable FastAPI demo, Docker deployment path, checked-in Text2SQL training data, a LoRA/PEFT training script, an evaluation harness, and MLflow-compatible metric logging. The 2026-06-01 baseline run is recorded above; the local Qwen 0.5B LoRA adapter trained successfully for one epoch and is ready for final adapter evaluation on a GPU-backed environment or a longer local CPU run.
