@@ -112,13 +112,13 @@ For production-style exposure, put the app behind HTTPS and an auth layer before
 Deploy the Docker demo to Spaces:
 
 ```bash
-huggingface-cli login
-huggingface-cli repo create schema-sage --type space --space_sdk docker
-git remote add space https://huggingface.co/spaces/animeshdutta888/schema-sage
+hf auth login
+hf repo create animesh08/schema-sage --repo-type space --space_sdk docker --exist-ok
+git remote add space https://huggingface.co/spaces/animesh08/schema-sage
 git push space main
 ```
 
-Space URL: `https://huggingface.co/spaces/animeshdutta888/schema-sage`
+Space URL: `https://huggingface.co/spaces/animesh08/schema-sage`
 
 ## Optional Model Backends
 
