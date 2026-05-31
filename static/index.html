@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SchemaSage</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace" aria-labelledby="app-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Schema-aware Text2SQL</p>
+            <h1 id="app-title">SchemaSage</h1>
+          </div>
+          <a class="docs-link" href="/docs">API docs</a>
+        </header>
+
+        <section class="query-panel">
+          <label for="question">Ask a business question</label>
+          <textarea
+            id="question"
+            rows="4"
+            spellcheck="true"
+          >Show monthly revenue by region for enterprise customers in 2024.</textarea>
+          <div class="actions">
+            <button id="generate-button" type="button">Generate SQL</button>
+            <button id="execute-button" type="button" class="secondary" disabled>Execute</button>
+          </div>
+        </section>
+
+        <section class="grid">
+          <article class="panel sql-panel">
+            <div class="panel-heading">
+              <h2>Generated SQL</h2>
+              <span id="validation-status" class="status neutral">Not validated</span>
+            </div>
+            <pre id="sql-output" class="code">SQL will appear here after generation.</pre>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <h2>Explanation</h2>
+              <span id="model-source" class="source">rules</span>
+            </div>
+            <p id="explanation" class="muted">SchemaSage will explain the selected tables, filters, and grouping logic.</p>
+          </article>
+        </section>
+
+        <section class="panel results-panel">
+          <div class="panel-heading">
+            <h2>Results</h2>
+            <span id="row-count" class="muted">No rows yet</span>
+          </div>
+          <div id="results" class="table-wrap">
+            <p class="empty">Run a generated query to preview read-only SQLite results.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

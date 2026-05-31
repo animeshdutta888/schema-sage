@@ -1,0 +1,38 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.py[cod]
+*$py.class
+
+# Packaging and build outputs
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Runtime/generated data
+data/demo/*.sqlite3
+data/demo/*.sqlite3-*
+
+# Model checkpoints and large generated artifacts
+artifacts/
+*.safetensors
+*.pt
+*.pth
+*.bin
+
+# Logs and local OS/editor noise
+*.log
+.DS_Store
+.idea/
+.vscode/
