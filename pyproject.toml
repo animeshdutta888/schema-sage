@@ -23,9 +23,10 @@ lora = [
   "accelerate>=0.30",
   "bitsandbytes>=0.43; platform_system != 'Darwin'",
   "datasets>=2.19",
+  "mlflow>=2.13",
   "peft>=0.11",
   "torch>=2.2",
-  "transformers>=4.41",
+  "transformers>=4.41,<5",
 ]
 
 [tool.setuptools.packages.find]
