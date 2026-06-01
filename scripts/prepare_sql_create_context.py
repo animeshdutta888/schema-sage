@@ -5,8 +5,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-from datasets import load_dataset
-
 
 DEFAULT_INSTRUCTION = (
     "Generate one safe SQL SELECT query for the question using only the provided schema."
@@ -40,6 +38,11 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--instruction", default=DEFAULT_INSTRUCTION)
     args = parser.parse_args()
+
+    try:
+        from datasets import load_dataset
+    except ImportError as exc:
+        raise SystemExit("Install dataset dependencies with python3 -m pip install -e '.[lora]'.") from exc
 
     dataset = load_dataset(args.dataset, split=args.split)
     if args.limit:
