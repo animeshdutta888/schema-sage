@@ -38,6 +38,8 @@ def main() -> None:
     parser.add_argument("--max-seq-length", type=int, default=768)
     parser.add_argument("--limit", type=int, default=0, help="Optional cap for quick training runs.")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--save-strategy", choices=["no", "epoch"], default="epoch")
+    parser.add_argument("--save-total-limit", type=int, default=1)
     args = parser.parse_args()
 
     train_path = Path(args.train_file)
@@ -96,9 +98,11 @@ def main() -> None:
         gradient_accumulation_steps=4,
         learning_rate=args.learning_rate,
         logging_steps=1,
-        save_strategy="epoch",
+        save_strategy=args.save_strategy,
+        save_total_limit=args.save_total_limit,
         report_to=[],
         seed=args.seed,
+        dataloader_pin_memory=False,
     )
 
     trainer = Trainer(
