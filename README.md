@@ -134,11 +134,18 @@ Train a LoRA/PEFT adapter:
 
 ```bash
 python3 -m pip install -e '.[lora]'
+python3 scripts/prepare_sql_create_context.py \
+  --output-file data/training/sql_create_context_10k.jsonl \
+  --limit 10000
 python3 scripts/train_lora.py \
   --base-model Qwen/Qwen2.5-Coder-0.5B-Instruct \
-  --train-file data/training/demo_text2sql.jsonl \
-  --output-dir artifacts/lora/schemasage-qwen-0.5b-adapter
+  --train-file data/training/sql_create_context_10k.jsonl \
+  --output-dir artifacts/lora/schemasage-qwen-0.5b-adapter \
+  --epochs 1 \
+  --max-seq-length 768
 ```
+
+`scripts/prepare_sql_create_context.py` converts `b-mc2/sql-create-context` from Hugging Face into SchemaSage's JSONL format. Use `--limit 5000` for a quick experiment, `--limit 10000` for a stronger adapter, or `--limit 0` to convert the full split.
 
 Run with a local adapter:
 
@@ -147,6 +154,21 @@ SCHEMASAGE_GENERATOR_BACKEND=lora \
 LORA_BASE_MODEL=Qwen/Qwen2.5-Coder-0.5B-Instruct \
 LORA_ADAPTER_PATH=artifacts/lora/schemasage-qwen-0.5b-adapter \
   python3 -m uvicorn api.main:app --reload
+```
+
+Upload the trained adapter to Hugging Face:
+
+```bash
+hf repo create animesh08/schemasage-qwen-0.5b-adapter --repo-type model --exist-ok
+hf upload animesh08/schemasage-qwen-0.5b-adapter artifacts/lora/schemasage-qwen-0.5b-adapter .
+```
+
+Use the adapter from the Space by setting Space environment variables:
+
+```text
+SCHEMASAGE_GENERATOR_BACKEND=lora
+LORA_BASE_MODEL=Qwen/Qwen2.5-Coder-0.5B-Instruct
+LORA_ADAPTER_PATH=animesh08/schemasage-qwen-0.5b-adapter
 ```
 
 If Ollama, model dependencies, or adapter artifacts are unavailable, SchemaSage falls back to deterministic SQL and reports the fallback in the response `source` and `explanation`.
@@ -164,12 +186,15 @@ Reproduce:
 
 ```bash
 python3 scripts/evaluate_text2sql.py --backend rules --output-file artifacts/eval/rules.json
+python3 scripts/prepare_sql_create_context.py \
+  --output-file data/training/sql_create_context_10k.jsonl \
+  --limit 10000
 python3 scripts/train_lora.py \
   --base-model Qwen/Qwen2.5-Coder-0.5B-Instruct \
-  --train-file data/training/demo_text2sql.jsonl \
+  --train-file data/training/sql_create_context_10k.jsonl \
   --output-dir artifacts/lora/schemasage-qwen-0.5b-adapter \
   --epochs 1 \
-  --max-seq-length 512
+  --max-seq-length 768
 SCHEMASAGE_GENERATOR_BACKEND=lora \
 LORA_ADAPTER_PATH=artifacts/lora/schemasage-qwen-0.5b-adapter \
   python3 scripts/evaluate_text2sql.py --backend lora --output-file artifacts/eval/lora.json --mlflow
