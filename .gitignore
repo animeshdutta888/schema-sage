@@ -23,6 +23,7 @@ pip-wheel-metadata/
 # Runtime/generated data
 data/demo/*.sqlite3
 data/demo/*.sqlite3-*
+data/training/sql_create_context*.jsonl
 
 # Model checkpoints and large generated artifacts
 artifacts/

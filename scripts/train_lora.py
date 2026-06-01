@@ -36,6 +36,8 @@ def main() -> None:
     parser.add_argument("--learning-rate", type=float, default=2e-4)
     parser.add_argument("--rank", type=int, default=8)
     parser.add_argument("--max-seq-length", type=int, default=768)
+    parser.add_argument("--limit", type=int, default=0, help="Optional cap for quick training runs.")
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
     train_path = Path(args.train_file)
@@ -43,6 +45,8 @@ def main() -> None:
         raise FileNotFoundError(f"Training file not found: {train_path}")
 
     dataset = load_dataset("json", data_files=str(train_path), split="train")
+    if args.limit:
+        dataset = dataset.shuffle(seed=args.seed).select(range(min(args.limit, len(dataset))))
     tokenizer = AutoTokenizer.from_pretrained(args.base_model, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -94,6 +98,7 @@ def main() -> None:
         logging_steps=1,
         save_strategy="epoch",
         report_to=[],
+        seed=args.seed,
     )
 
     trainer = Trainer(
