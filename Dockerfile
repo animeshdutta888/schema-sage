@@ -14,7 +14,7 @@ COPY data/training ./data/training
 COPY scripts/serve.sh ./scripts/serve.sh
 
 RUN python -m pip install --no-cache-dir --upgrade pip \
-    && python -m pip install --no-cache-dir .
+    && python -m pip install --no-cache-dir '.[lora]'
 
 EXPOSE 8000
 
