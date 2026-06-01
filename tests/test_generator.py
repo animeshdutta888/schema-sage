@@ -120,13 +120,12 @@ def test_lora_generation_accepts_valid_sql_without_semantic_hardcoded_fallback(m
             return [
                 {
                     "generated_text": (
-                        "SELECT strftime('%Y', orders.order_date) AS year, "
-                        "customers.name AS customer, ROUND(SUM(orders.amount), 2) AS revenue "
+                        "SELECT customers.region, ROUND(SUM(orders.amount), 2) AS revenue "
                         "FROM orders JOIN customers ON customers.id = orders.customer_id "
                         "WHERE orders.order_date >= '2024-01-01' "
                         "AND orders.order_date < '2025-01-01' "
                         "AND customers.region IN ('Europe', 'North America') "
-                        "GROUP BY year, customer ORDER BY year, customer"
+                        "GROUP BY customers.region ORDER BY revenue DESC"
                     )
                 }
             ]
@@ -136,4 +135,31 @@ def test_lora_generation_accepts_valid_sql_without_semantic_hardcoded_fallback(m
     generated = generator.generate_sql_with_lora("Compare Europe and North America revenue in 2024.")
 
     assert generated.source.startswith("lora:")
-    assert "customers.name AS customer" in generated.sql
+    assert "customers.region" in generated.sql
+
+
+def test_lora_generation_falls_back_for_monthly_revenue_semantic_issue(monkeypatch) -> None:
+    class FakeLoraGenerator:
+        tokenizer = type("Tokenizer", (), {"eos_token_id": 0})()
+
+        def __call__(self, *args: object, **kwargs: object) -> list[dict[str, str]]:
+            return [
+                {
+                    "generated_text": (
+                        'SELECT SUM(amount), T1.region FROM customers AS T1 '
+                        'JOIN orders AS T2 ON T1.id = T2.customer_id '
+                        'WHERE T1.segment = "Enterprise" AND T2.order_date LIKE "%2024-%" '
+                        "GROUP BY T1.region ORDER BY SUM(amount) DESC LIMIT 10"
+                    )
+                }
+            ]
+
+    monkeypatch.setattr(generator, "load_lora_generator", lambda: FakeLoraGenerator())
+
+    generated = generator.generate_sql_with_lora(
+        "Show monthly revenue by region for enterprise customers in 2024."
+    )
+
+    assert generated.source == "rules_fallback"
+    assert "strftime('%Y-%m', orders.order_date) AS month" in generated.sql
+    assert "customers.segment = 'enterprise'" in generated.sql
