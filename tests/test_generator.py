@@ -112,6 +112,25 @@ def test_all_region_sales_comparison_rule_groups_by_region() -> None:
     assert "ORDER BY sales DESC" in generated.sql
 
 
+def test_top_products_rule_uses_product_schema() -> None:
+    generated = generator.generate_sql_with_rules("List the top 5 products by order count")
+    validation = validate_sql(generated.sql)
+
+    assert validation.valid is True
+    assert validation.tables == ["orders", "products"]
+    assert "COUNT(orders.id) AS order_count" in generated.sql
+    assert "LIMIT 5" in generated.sql
+
+
+def test_frequent_customers_rule_counts_orders() -> None:
+    generated = generator.generate_sql_with_rules("Which customers placed more than 3 orders?")
+    validation = validate_sql(generated.sql)
+
+    assert validation.valid is True
+    assert validation.tables == ["customers", "orders"]
+    assert "HAVING COUNT(orders.id) > 3" in generated.sql
+
+
 def test_lora_generation_accepts_valid_sql_without_semantic_hardcoded_fallback(monkeypatch) -> None:
     class FakeLoraGenerator:
         tokenizer = type("Tokenizer", (), {"eos_token_id": 0})()

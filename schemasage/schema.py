@@ -40,4 +40,11 @@ def serialize_schema_for_prompt() -> str:
     for table in load_schema().tables:
         columns = ", ".join(f"{column.name} {column.type}" for column in table.columns)
         table_lines.append(f"Table {table.name}({columns})")
+    table_lines.extend(
+        [
+            "Allowed customers.segment values: 'enterprise', 'mid_market', 'smb'",
+            "Allowed orders.status values: 'completed', 'processing', 'cancelled', 'refunded'",
+            "Use orders.amount for revenue and orders.order_date for dates.",
+        ]
+    )
     return "\n".join(table_lines)

@@ -33,6 +33,47 @@ def generate_sql(question: str) -> GeneratedSql:
 
 def generate_sql_with_rules(question: str) -> GeneratedSql:
     normalized = " ".join(question.lower().split())
+    if all(term in normalized for term in ["top", "products"]) and any(
+        term in normalized for term in ["order count", "orders", "ordered"]
+    ):
+        return GeneratedSql(
+            sql="""
+            SELECT
+              products.name AS product,
+              products.category,
+              COUNT(orders.id) AS order_count
+            FROM orders
+            JOIN products ON products.id = orders.product_id
+            WHERE orders.status = 'completed'
+            GROUP BY products.id, products.name, products.category
+            ORDER BY order_count DESC, product
+            LIMIT 5
+            """,
+            explanation="Counts completed orders joined to products, then ranks products by order volume.",
+            source="rules",
+        )
+
+    if all(term in normalized for term in ["customers", "more than 3", "orders"]):
+        return GeneratedSql(
+            sql="""
+            SELECT
+              customers.name AS customer,
+              customers.region,
+              customers.segment,
+              COUNT(orders.id) AS order_count,
+              ROUND(SUM(orders.amount), 2) AS revenue
+            FROM customers
+            JOIN orders ON orders.customer_id = customers.id
+            WHERE orders.status = 'completed'
+            GROUP BY customers.id, customers.name, customers.region, customers.segment
+            HAVING COUNT(orders.id) > 3
+            ORDER BY order_count DESC, revenue DESC
+            LIMIT 20
+            """,
+            explanation="Finds customers with more than three completed orders and includes their total revenue.",
+            source="rules",
+        )
+
     if (
         any(term in normalized for term in ["compare", "breakdown", "by region"])
         and any(term in normalized for term in ["sales", "revenue"])
@@ -46,6 +87,7 @@ def generate_sql_with_rules(question: str) -> GeneratedSql:
               ROUND(SUM(orders.amount), 2) AS sales
             FROM orders
             JOIN customers ON customers.id = orders.customer_id
+            WHERE orders.status = 'completed'
             GROUP BY customers.region
             ORDER BY sales DESC
             """,
@@ -66,6 +108,7 @@ def generate_sql_with_rules(question: str) -> GeneratedSql:
             JOIN customers ON customers.id = orders.customer_id
             WHERE orders.order_date >= '2024-01-01'
               AND orders.order_date < '2025-01-01'
+              AND orders.status = 'completed'
               AND customers.region IN ('Europe', 'North America')
             GROUP BY customers.region
             ORDER BY revenue DESC
@@ -89,6 +132,7 @@ def generate_sql_with_rules(question: str) -> GeneratedSql:
             WHERE customers.segment = 'enterprise'
               AND orders.order_date >= '2024-01-01'
               AND orders.order_date < '2025-01-01'
+              AND orders.status = 'completed'
             GROUP BY month, customers.region
             ORDER BY month, customers.region
             """,
