@@ -1,6 +1,7 @@
 const questionInput = document.querySelector("#question");
 const generateButton = document.querySelector("#generate-button");
 const executeButton = document.querySelector("#execute-button");
+const exampleButtons = document.querySelectorAll(".example-button");
 const sqlOutput = document.querySelector("#sql-output");
 const validationStatus = document.querySelector("#validation-status");
 const explanation = document.querySelector("#explanation");
@@ -9,6 +10,13 @@ const results = document.querySelector("#results");
 const rowCount = document.querySelector("#row-count");
 
 let currentSql = "";
+
+exampleButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    questionInput.value = button.dataset.question || "";
+    questionInput.focus();
+  });
+});
 
 function setBusy(button, label, busy) {
   button.disabled = busy;

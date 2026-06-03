@@ -118,6 +118,20 @@ button.secondary:hover {
   border-color: var(--brand);
 }
 
+button.example-button {
+  min-height: 34px;
+  padding: 0 12px;
+  color: var(--brand-strong);
+  background: #eef7f5;
+  border-color: rgba(15, 118, 110, 0.22);
+  font-size: 0.86rem;
+}
+
+button.example-button:hover {
+  color: #ffffff;
+  background: var(--brand);
+}
+
 button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -163,6 +177,42 @@ textarea:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.examples,
+.dataset-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dataset-strip {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.dataset-strip div {
+  min-width: 120px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--brand);
+  background: var(--surface);
+}
+
+.dataset-strip strong,
+.dataset-strip span {
+  display: block;
+}
+
+.dataset-strip strong {
+  font-size: 1.25rem;
+}
+
+.dataset-strip span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .grid {

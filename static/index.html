@@ -24,10 +24,23 @@
             rows="4"
             spellcheck="true"
           >Show monthly revenue by region for enterprise customers in 2024.</textarea>
+          <div class="examples" aria-label="Example questions">
+            <button class="example-button" type="button" data-question="Show monthly revenue by region for enterprise customers in 2024.">Monthly enterprise revenue</button>
+            <button class="example-button" type="button" data-question="Show total revenue by region for 2024">Revenue by region</button>
+            <button class="example-button" type="button" data-question="Which customers placed more than 3 orders?">Frequent customers</button>
+            <button class="example-button" type="button" data-question="List the top 5 products by order count">Top products</button>
+          </div>
           <div class="actions">
             <button id="generate-button" type="button">Generate SQL</button>
             <button id="execute-button" type="button" class="secondary" disabled>Execute</button>
           </div>
+        </section>
+
+        <section class="dataset-strip" aria-label="Demo dataset summary">
+          <div><strong>80</strong><span>customers</span></div>
+          <div><strong>900</strong><span>orders</span></div>
+          <div><strong>25</strong><span>products</span></div>
+          <div><strong>16</strong><span>employees</span></div>
         </section>
 
         <section class="grid">
